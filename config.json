@@ -1,0 +1,67 @@
+{
+    "general": {
+        "modes":[
+            "Train",
+            "Test",
+            "Log"
+        ],
+        "chosen_mode": 2,
+        "width": 512,
+        "height": 512,
+        "input_channels": 3,
+        "epochs": 500,
+        "batch_size": 16,
+        "augmentation": true,
+        "if_save_models": true,
+        "if_save_log": true,
+        "if_visualize_loss": true,
+        "models": [
+            "Unet",
+            "Unet_pro",
+            "Unet_pro_mix",
+            "Transformer_pure",
+            "Transformer_CNN_Unet_mix_p1",
+            "Transformer_CNN_Unet_mix_p2",
+            "Transformer_CNN_Unet_mix_p3",
+            "Transformer_CNN_Unet_mix_p4",
+            "Transformer_CNN_Unet_mix_p5",
+            "Transformer_CNN_Unet_mix_p6",
+            "FCN",
+            "FCN_mix",
+            "Attention_Unet"
+        ],
+        "chosen_models": [
+            0
+        ],
+        "datasets": [
+            "Dirt_v1",
+            "Dirt_v2",
+            "Dirt_mix"
+        ],
+        "chosen_datasets": [
+            0,1,2
+        ]
+    },
+    "data": {
+        "Dirt_v1": {
+            "data_path": "C:/Users/WhuLi/Documents/datasets/ilastic/data/v1/",
+            "data_loader": 1
+        },
+        "Dirt_v2": {
+            "data_path": "C:/Users/WhuLi/Documents/datasets/ilastic/data/v2/",
+            "data_loader": 1
+        },
+        "Dirt_mix": {
+            "data_path": "C:/Users/WhuLi/Documents/datasets/ilastic/data/mix/",
+            "data_loader": 1
+        }
+    },
+    "evaluation": {
+        "methods": [
+            "Dice"
+        ],
+        "chosen_methods": [
+            0
+        ]
+    }
+}
