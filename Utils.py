@@ -1,22 +1,13 @@
-from calendar import c
-from distutils.log import Log
 import os
 import json
-from cv2 import log
 import numpy as np
-import pandas
 import cv2
-from PIL import Image
-from skimage import io, transform
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 import torch
 import time
 from os import listdir
-from torchvision import transforms as T
-import torchvision
 import matplotlib.pyplot as plt
 import pylab as pl
-from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 
 def load_json(file_path):

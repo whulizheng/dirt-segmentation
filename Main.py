@@ -40,7 +40,8 @@ def dataset_prepare(config, transform, name):
             config["data"]["Dirt_v1"]["data_path"], transform)
         trainset, testset = random_split(dataset, [int(
             dataset.__len__()*0.9), int(dataset.__len__()-int(dataset.__len__()*0.9))])
-        print("split "+str(len(trainset))+" imgs for training set and " + str(len(testset)) +" for test set")
+        print("split "+str(len(trainset))+" imgs for training set and " +
+              str(len(testset)) + " for test set")
         train_loader = torch.utils.data.DataLoader(
             dataset=trainset, batch_size=config["general"]["batch_size"], shuffle=True)
         test_loader = torch.utils.data.DataLoader(
@@ -51,7 +52,8 @@ def dataset_prepare(config, transform, name):
             config["data"]["Dirt_v2"]["data_path"], transform)
         trainset, testset = random_split(dataset, [int(
             dataset.__len__()*0.9), int(dataset.__len__()-int(dataset.__len__()*0.9))])
-        print("split "+str(len(trainset))+" imgs for training set and " + str(len(testset)) +" for test set")
+        print("split "+str(len(trainset))+" imgs for training set and " +
+              str(len(testset)) + " for test set")
         train_loader = torch.utils.data.DataLoader(
             dataset=trainset, batch_size=config["general"]["batch_size"], shuffle=True)
         test_loader = torch.utils.data.DataLoader(
@@ -62,7 +64,8 @@ def dataset_prepare(config, transform, name):
             config["data"]["Dirt_mix"]["data_path"], transform)
         trainset, testset = random_split(dataset, [int(
             dataset.__len__()*0.9), int(dataset.__len__()-int(dataset.__len__()*0.9))])
-        print("split "+str(len(trainset))+" imgs for training set and " + str(len(testset)) +" for test set")
+        print("split "+str(len(trainset))+" imgs for training set and " +
+              str(len(testset)) + " for test set")
         train_loader = torch.utils.data.DataLoader(
             dataset=trainset, batch_size=config["general"]["batch_size"], shuffle=True)
         test_loader = torch.utils.data.DataLoader(
@@ -176,7 +179,7 @@ def main():
                 for e in config["evaluation"]["chosen_methods"]:
                     method_name = config["evaluation"]["methods"][e]
                     print("Evaluating Model: "+model_name+" By " +
-                        method_name + " On " + dataset_name)
+                          method_name + " On " + dataset_name)
                     method = init_evaluation(method_name, num_classes, config)
                     scores = []
                     with torch.no_grad():
@@ -191,23 +194,24 @@ def main():
                             mask = mask.cpu().detach().numpy()
                             image = image.cpu().detach().numpy()
                             Utils.save_outputs(
-                                image, mask, pred_mask, model_name,dataset_name, flag,palette)
+                                image, mask, pred_mask, model_name, dataset_name, flag, palette)
                             flag += 1
                     evaluations[method_name] = np.mean(scores)
                     print("Model: "+model_name+" Got "+method_name +
-                        ": "+str(float(np.mean(scores))))
+                          ": "+str(float(np.mean(scores))))
 
                 # save_log
                 if config["general"]["if_save_log"]:
                     Utils.save_log(model_name, config, train_loss,
-                                test_loss, dataset=dataset_name, evaluations=evaluations)
+                                   test_loss, dataset=dataset_name, evaluations=evaluations)
                 # visualize_loss
                 if config["general"]["if_visualize_loss"]:
-                    Utils.visualize_loss(train_loss=train_loss, test_loss=test_loss, model_name=model_name, dataset_name=dataset_name)
+                    Utils.visualize_loss(train_loss=train_loss, test_loss=test_loss,
+                                         model_name=model_name, dataset_name=dataset_name)
                 # save_model
                 if config["general"]["if_save_models"]:
                     date = time.strftime('%Y_%m_%d_%H_%M_%S',
-                                        time.localtime(time.time()))
+                                         time.localtime(time.time()))
                     path = "Saved_models/" + model_name + "_" + date + ".pt"
                     torch.save(model, path)
                     print("model "+model_name+" saved at: "+path)
@@ -223,15 +227,16 @@ def main():
         print("Loading recent log")
         log = Utils.load_recent_log()
         model_name = log["model"]
-        dataset_name = log["dataset"]
+        try:
+            dataset_name = log["dataset"]
+        except:
+            dataset_name = "null"
         train_loss = log["train_loss"]
         test_loss = log["test_loss"]
         if config["general"]["if_visualize_loss"]:
             print("visualizing loss values in tmp folder")
-            Utils.visualize_loss(train_loss=train_loss, test_loss=test_loss, model_name=model_name,dataset_name=dataset_name)
-
-
-
+            Utils.visualize_loss(train_loss=train_loss, test_loss=test_loss,
+                                 model_name=model_name, dataset_name=dataset_name)
 
 
 if __name__ == "__main__":
