@@ -35,8 +35,8 @@ ENV/
 *.sublime-project
 
 
-Models/*
-Logs/*
+Saved_models/
+Logs/
 .vscode/
 _pycache/
-tmp/*
+tmp/

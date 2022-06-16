@@ -7,7 +7,7 @@ from torch import nn
 class Model(nn.Module):
     def __init__(self, input_shape, num_classes):
         super(Model, self).__init__()
-        self.name = "Unet"
+        self.name = "U-Net"
         self.in_channel, self.height, self.width = input_shape
         self.out_channel = num_classes
         self.down1 = StackEncoder(self.in_channel, 12, kernel_size=(3, 3))

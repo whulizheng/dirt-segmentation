@@ -1,5 +1,6 @@
 import os
 import json
+from sys import exc_info
 import numpy as np
 import cv2
 from torch.utils.data import Dataset
@@ -62,6 +63,38 @@ class Dirt_data(Dataset):
     def __len__(self):
         return len(self.images)
 
+class Dirt_data_seg(Dataset):
+    def __init__(self, path, transforms=None):
+        '''
+        63 = type_1
+        -87 = type_2
+        -118 = type_3
+        '''
+        self.palette = [[63], [-87], [-118]]
+        self.num_classes = 3
+        self.path = path
+        self.transform = transforms
+        self.images = []
+        for img in listdir(self.path):
+            self.images.append(os.path.join(self.path, img))
+
+    def __getitem__(self, idx):
+        image = self.images[idx]
+        image = cv2.imread(image)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB).astype(np.float32)
+
+        if self.transform is not None:
+            aug = self.transform(image=image)
+            image = aug['image']
+        image = image.transpose((2, 0, 1))
+
+        image = torch.from_numpy(image)
+        basename = os.path.basename(self.images[idx])
+        file_name = os.path.splitext(basename)[0]
+        return image, file_name
+
+    def __len__(self):
+        return len(self.images)
 
 def save_log(name, config, train_loss, test_loss, dataset, path="Logs/", evaluations=None):
     date = time.strftime('%Y_%m_%d_%H_%M_%S', time.localtime(time.time()))
@@ -69,9 +102,9 @@ def save_log(name, config, train_loss, test_loss, dataset, path="Logs/", evaluat
         'train_loss': train_loss,
         'test_loss': test_loss,
         'model': name,
-        'batch_size': config["general"]["batch_size"],
-        'epochs': config["general"]["epochs"],
-        'if_augmentation': config["general"]["augmentation"],
+        'batch_size': config["train"]["batch_size"],
+        'epochs': config["train"]["epochs"],
+        'if_augmentation': config["train"]["augmentation"],
         'dataset': dataset,
         'date': date
     }
@@ -83,18 +116,30 @@ def save_log(name, config, train_loss, test_loss, dataset, path="Logs/", evaluat
 
 
 def show_config(config):
-    print("Going to train these models:")
-    for i in config["general"]["chosen_models"]:
-        model_name = config["general"]["models"][i]
-        print("\t"+model_name)
-    print("On datasets:")
-    for i in config["general"]["chosen_datasets"]:
-        dataset_name = config["general"]["datasets"][i]
-        print("\t"+dataset_name)
-    print("Using evaluation:")
-    for i in config["evaluation"]["chosen_methods"]:
-        method_name = config["evaluation"]["methods"][i]
-        print("\t"+method_name)
+    if config["general"]["modes"][config["general"]["chosen_mode"]] == "Train":
+        print("Going to train these models:")
+        for i in config["train"]["chosen_models"]:
+            model_name = config["train"]["models"][i]
+            print("\t"+model_name)
+        print("On datasets:")
+        for i in config["train"]["chosen_datasets"]:
+            dataset_name = config["train"]["datasets"][i]
+            print("\t"+dataset_name)
+    elif config["general"]["modes"][config["general"]["chosen_mode"]] == "Eval":
+        print("Going to evaluate these models:")
+        for i in config["eval"]["chosen_models"]:
+            model_name = config["eval"]["models"][i]
+            print("\t"+model_name)
+        print("On datasets:")
+        for i in config["eval"]["chosen_datasets"]:
+            dataset_name = config["eval"]["datasets"][i]
+            print("\t"+dataset_name)
+        print("By methods:")
+        for i in config["eval"]["chosen_methods"]:
+            method = config["eval"]["methods"][i]
+            print("\t"+method)
+    else:
+        print("Going to evaluate these models:")
 
 
 def save_outputs(images, masks, pred_masks, model_name,dataset_name, flag, palette, path="tmp/"):
@@ -161,14 +206,30 @@ def load_log(path):
 def load_recent_log(root_path = "Logs/"):
     logs = os.listdir(root_path)
     if not logs:
-        return
+        print("no log")
+        exit(0)
     else:
         logs = sorted(logs,key=lambda x: os.path.getmtime(os.path.join(root_path, x)))
     log_path = logs[-1]
     log = load_log(root_path+log_path)
     return log
 
+def load_recent_model(root_path = "Saved_models/"):
+    models = os.listdir(root_path)
+    if not models:
+        print("no model")
+        exit(0)
+    else:
+        models = sorted(models,key=lambda x: os.path.getmtime(os.path.join(root_path, x)))
+    model_path = models[-1]
+    model = model_load(root_path+model_path)
+    return model
 
-
+def model_load(path):
+    model = torch.load(path)
+    if torch.cuda.device_count() > 1:
+        print("Let's use", torch.cuda.device_count(), "GPUs!")
+        model = torch.nn.DataParallel(model)
+    return model
 
 
